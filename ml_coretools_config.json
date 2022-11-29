@@ -1,0 +1,8 @@
+{
+    "headroom_weights": 6,
+    "key_model": "VOICE_CONTROL_PSOC6",
+    "load_model": "C:/PSoC_project/marvin_ml_solver/pretrained_model/psoc6_voice_control_bootcamp_model_cnn.h5",
+    "max_samples": 1000,
+    "random_input": 1,
+    "run_mode": "deploy"
+}
