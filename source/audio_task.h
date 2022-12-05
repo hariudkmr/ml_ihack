@@ -55,7 +55,9 @@
 #define PROFILER_ENABLE                             (1u)
 
 /* Define how many samples in a frame */
-#define BUFFER_SIZE                                 (16 * 1024u)
+#define TBUFFER_SIZE                                 65536
+#define SBUFFER_SIZE                                 16384
+#define N_FRAMES                                     4
 
 /* Desired sample rate. Typical values: 8/16/22.05/32/44.1/48kHz */
 #define SAMPLE_RATE_HZ                              16000u
@@ -75,7 +77,7 @@
 /* PDM capture mode - stereo, left, or right
  *      Valid choices: CYHAL_PDM_PCM_MODE_STEREO, CYHAL_PDM_PCM_MODE_LEFT, CYHAL_PDM_PCM_MODE_RIGHT 
  */
-#define PDM_MODE                                    (CYHAL_PDM_PCM_MODE_RIGHT)
+#define PDM_MODE                                    (CYHAL_PDM_PCM_MODE_LEFT)
 
 /* PDM mic gain */
 #define PDM_GAIN_LEFT                               (5u)
@@ -92,7 +94,7 @@
  */
 
 /* Spectrogram parameters */
-#define SPECTROGRAM_NUM_SAMPLES                     (BUFFER_SIZE) /* Specify as multiple of 'BUFFER_SIZE' */
+#define SPECTROGRAM_NUM_SAMPLES                     (SBUFFER_SIZE) /* Specify as multiple of 'BUFFER_SIZE' */
 
 /* Sizes for various buffers created in the application */
 #define NUM_FRAMES_IN_SPECTROGRAM                   (SPECTROGRAM_NUM_SAMPLES / FFT_STEP_SIZE)

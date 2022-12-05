@@ -71,7 +71,7 @@
 
 #if PROFILER_ENABLE
     #define PCM_PROFILER_START()                        profiler_timer_start(&pcm_timer)
-    #define PCM_PROFILER_STOP()                         printf("\n\n\nPCM Samples received after %lu ms\n", profiler_timer_stop(&pcm_timer))
+    #define PCM_PROFILER_STOP()                         printf("\n\n\nPCM Samples received after %lu us\n", profiler_timer_stop(&pcm_timer))
 
     #define TOTAL_PREPROCESSING_PROFILER_START()        profiler_timer_start(&total_timer)
     #define TOTAL_PREPROCESSING_PROFILER_STOP()         printf("\nTotal Preprocessing time: %lu us\n", profiler_timer_stop(&total_timer))
@@ -94,11 +94,10 @@
 * Global Variables
 ********************************************************************************/
 /* PCM buffers and pointers */
-static int16_t  rx_buffer0[BUFFER_SIZE] = {0};
-static int16_t  rx_buffer1[BUFFER_SIZE] = {0};
-static pcm_t    final_pcm_buffer[BUFFER_SIZE] = {0};
-static int16_t* active_rx_buffer;
-static int16_t* full_rx_buffer;
+//int16_t  rx_buffer0[BUFFER_SIZE] = {0};
+//int16_t  rx_buffer1[BUFFER_SIZE] = {0};
+int16_t  ring_buffer[TBUFFER_SIZE] = {0};
+pcm_t    final_pcm_buffer[SBUFFER_SIZE] = {0};
 
 /* Interrupt flags */
 volatile bool pdm_pcm_flag = false;
@@ -192,14 +191,14 @@ void audio_task_init(void)
     cyhal_pdm_pcm_set_async_mode(&pdm_pcm, CYHAL_ASYNC_SW,CYHAL_DMA_PRIORITY_DEFAULT);
 
     /* Setup the PCM buffer pointers and start the PDM hardware block */
-    active_rx_buffer = rx_buffer0;
-    full_rx_buffer   = rx_buffer1;
+    //active_rx_buffer = rx_buffer0;
+    //full_rx_buffer   = rx_buffer1;
     cyhal_pdm_pcm_start(&pdm_pcm);
 
     /* Start async read to read frame after 1 sec delay for stabilization */
     cyhal_system_delay_ms(1000u);
     PCM_PROFILER_START();
-    //cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
+    cyhal_pdm_pcm_read_async(&pdm_pcm, ring_buffer, TBUFFER_SIZE);
 }
 
 /*******************************************************************************
@@ -232,73 +231,79 @@ void audio_task_loop(void)
 
             /* Clear the PDM/PCM flag */
             pdm_pcm_flag = 0;
-
+            //cyhal_pdm_pcm_read_async(&pdm_pcm, ring_buffer, BUFFER_SIZE);
+            PCM_PROFILER_START();
             /* Swap the active and the next rx buffers */
-            //int16_t *temp    = active_rx_buffer;
+            volatile uint32_t active_buffer;    
             //active_rx_buffer = full_rx_buffer;
             //full_rx_buffer   = temp;
+            active_buffer = (uint32_t)ring_buffer;
+             for(int i=0; i <N_FRAMES; i++)
+            {
+                TOTAL_PREPROCESSING_PROFILER_START();
 
-            TOTAL_PREPROCESSING_PROFILER_START();
+                /**********************************************************************
+                 ============================ DC Filtering ============================
+                **********************************************************************/
+                OPERATION_PROFILER_START();
+           
+                /* IIR filter to remove DC component from the PCM samples */
+                active_buffer += SBUFFER_SIZE*i;
+               
+                pcm_dc_filtering((int16_t*)active_buffer, final_pcm_buffer, SBUFFER_SIZE);
 
-            /**********************************************************************
-             ============================ DC Filtering ============================
-            **********************************************************************/
-            OPERATION_PROFILER_START();
-
-            /* IIR filter to remove DC component from the PCM samples */
-            pcm_dc_filtering(full_rx_buffer, final_pcm_buffer, BUFFER_SIZE);
-
-            OPERATION_PROFILER_STOP("  DC Filtering");
-
-
-            /**********************************************************************
-             ========================== MFCC Spectrogram ==========================
-            **********************************************************************/
-            OPERATION_PROFILER_START();
-
-            get_buffer_mfcc_spectrogram(final_pcm_buffer, (sizeof(final_pcm_buffer) / sizeof(final_pcm_buffer[0])));
-
-            OPERATION_PROFILER_STOP("    MFCC Spectrogram");
-            final_spectrogram_ptr = (spect_t *) spectrogram_final_buffer;
-            final_spectrogram_num_samples = SPECTROGRAM_HEIGHT * SPECTROGRAM_WIDTH;
+                OPERATION_PROFILER_STOP("  DC Filtering");
 
 
-            /**********************************************************************
-             ==================== Spectrogram Standardization =====================
-            **********************************************************************/
-            OPERATION_PROFILER_START();
+                /**********************************************************************
+                 ========================== MFCC Spectrogram ==========================
+                **********************************************************************/
+                OPERATION_PROFILER_START();
 
-            /* Standardize the spectrogram */
-            get_standardized_spectrogram(SPECTROGRAM_HEIGHT, 
-                                         SPECTROGRAM_WIDTH, 
-                                         (spect_t *)spectrogram_final_buffer, 
-                                         (spect_t *)standardized_spectrogram);
+                //get_buffer_mfcc_spectrogram(final_pcm_buffer, (sizeof(final_pcm_buffer) / sizeof(final_pcm_buffer[0])));
 
-            OPERATION_PROFILER_STOP("      Spectrogram Standardization");
-            final_spectrogram_ptr = (spect_t *) standardized_spectrogram;
+                OPERATION_PROFILER_STOP("    MFCC Spectrogram");
+                final_spectrogram_ptr = (spect_t *) spectrogram_final_buffer;
+                final_spectrogram_num_samples = SPECTROGRAM_HEIGHT * SPECTROGRAM_WIDTH;
 
 
-            /* ====================== END OF PREPROCESSING ====================== */
-            TOTAL_PREPROCESSING_PROFILER_STOP();
+                /**********************************************************************
+                 ==================== Spectrogram Standardization =====================
+                **********************************************************************/
+                OPERATION_PROFILER_START();
+
+                /* Standardize the spectrogram */
+                get_standardized_spectrogram(SPECTROGRAM_HEIGHT, 
+                                            SPECTROGRAM_WIDTH, 
+                                            (spect_t *)spectrogram_final_buffer, 
+                                            (spect_t *)standardized_spectrogram);
+
+                OPERATION_PROFILER_STOP("      Spectrogram Standardization");
+                final_spectrogram_ptr = (spect_t *) standardized_spectrogram;
 
 
-            /**********************************************************************
-             ======================= ML Model Inferencing  ========================
-            **********************************************************************/
-            OPERATION_PROFILER_START();
-            inference_task(final_spectrogram_ptr);
-            OPERATION_PROFILER_STOP("\nML Inferencing");
+                /* ====================== END OF PREPROCESSING ====================== */
+                TOTAL_PREPROCESSING_PROFILER_STOP();
 
 
-            /**********************************************************************
-             ====================== PDM/PCM Read Next Buffer ======================
-            **********************************************************************/
-            /* Start reading into the next buffer...
-            *  Note: This should ideally be done at the start before preprocessing 
-            *        so that we don't miss any audio samples 
-            */
-            //cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
-            //PCM_PROFILER_START();
+                /**********************************************************************
+                  ======================= ML Model Inferencing  ========================
+                **********************************************************************/
+                OPERATION_PROFILER_START();
+                inference_task(final_spectrogram_ptr);
+                OPERATION_PROFILER_STOP("\nML Inferencing");
+
+
+                /**********************************************************************
+                 ====================== PDM/PCM Read Next Buffer ======================
+                **********************************************************************/
+                /* Start reading into the next buffer...
+                *  Note: This should ideally be done at the start before preprocessing 
+                *        so that we don't miss any audio samples 
+                */
+                //cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
+                //PCM_PROFILER_START();
+            }
 
         }
     }
@@ -323,18 +328,17 @@ static void pdm_pcm_isr_handler(void *arg, cyhal_pdm_pcm_event_t event)
 {
     /* To avoid compiler warnings */
     (void) arg;
-    PCM_PROFILER_STOP(); 
     if (0u != (event & CYHAL_PDM_PCM_ASYNC_COMPLETE))
     {
-        PCM_PROFILER_START();
+        //PCM_PROFILER_START();
         pdm_pcm_flag = true;
-        uint32_t* temp = active_rx_buffer;
-        active_rx_buffer = full_rx_buffer;
-        full_rx_buffer   = temp;
+        //uint32_t* temp = active_rx_buffer;
+        //active_rx_buffer = full_rx_buffer;
+        //full_rx_buffer   = temp;
         // Start reading into the next buffer while the just-filled one is being processed
-        //cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
+        cyhal_pdm_pcm_read_async(&pdm_pcm, ring_buffer, TBUFFER_SIZE);
+        
     }
-    PCM_PROFILER_START();
 }
 
 /*******************************************************************************
