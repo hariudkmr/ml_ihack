@@ -52,7 +52,7 @@
 * Macros
 ********************************************************************************/
 /* Enable profiler that prints out time taken for various tasks and operations */
-#define PROFILER_ENABLE                             (0u)
+#define PROFILER_ENABLE                             (1u)
 
 /* Define how many samples in a frame */
 #define BUFFER_SIZE                                 (16 * 1024u)

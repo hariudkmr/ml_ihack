@@ -71,7 +71,7 @@
 
 #if PROFILER_ENABLE
     #define PCM_PROFILER_START()                        profiler_timer_start(&pcm_timer)
-    #define PCM_PROFILER_STOP()                         printf("\n\n\nPCM Samples received after %lu ms\n", profiler_timer_stop(&pcm_timer) / 1000u)
+    #define PCM_PROFILER_STOP()                         printf("\n\n\nPCM Samples received after %lu ms\n", profiler_timer_stop(&pcm_timer))
 
     #define TOTAL_PREPROCESSING_PROFILER_START()        profiler_timer_start(&total_timer)
     #define TOTAL_PREPROCESSING_PROFILER_STOP()         printf("\nTotal Preprocessing time: %lu us\n", profiler_timer_stop(&total_timer))
@@ -199,7 +199,7 @@ void audio_task_init(void)
     /* Start async read to read frame after 1 sec delay for stabilization */
     cyhal_system_delay_ms(1000u);
     PCM_PROFILER_START();
-    cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
+    //cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
 }
 
 /*******************************************************************************
@@ -323,7 +323,7 @@ static void pdm_pcm_isr_handler(void *arg, cyhal_pdm_pcm_event_t event)
 {
     /* To avoid compiler warnings */
     (void) arg;
-
+    PCM_PROFILER_STOP(); 
     if (0u != (event & CYHAL_PDM_PCM_ASYNC_COMPLETE))
     {
         PCM_PROFILER_START();
@@ -332,12 +332,9 @@ static void pdm_pcm_isr_handler(void *arg, cyhal_pdm_pcm_event_t event)
         active_rx_buffer = full_rx_buffer;
         full_rx_buffer   = temp;
         // Start reading into the next buffer while the just-filled one is being processed
-        cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
-        
-        
-
-
+        //cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
     }
+    PCM_PROFILER_START();
 }
 
 /*******************************************************************************

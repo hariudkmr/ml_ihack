@@ -31,7 +31,7 @@
             "type": "cortex-debug",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.elf",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.elf",
             "servertype": "openocd",
             "searchDir": [
                 "${workspaceRoot}",
@@ -45,7 +45,7 @@
                 "-enable-pretty-printing",
                 "set remotetimeout 15",
                 // Comment this next line out if you don't want to reload program
-                "monitor program {./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.hex}",
+                "monitor program {./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.hex}",
                 "monitor reset run",
                 "monitor sleep 200",
                 "monitor psoc6 reset_halt sysresetreq"
@@ -69,10 +69,10 @@
             "postRestartSessionCommands": [
             ],
             // svdFile is optional, it can be very large.
-            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_02.svd",
+            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_01.svd",
             "breakAfterReset": true,
             "runToMain": true,          // if true, program will halt at main. Not used for a restart
-            "preLaunchTask": "Build: Build [Debug]",    // Set this to run a task from tasks.json
+            //"preLaunchTask": "Build: Build [Debug]",    // Set this to run a task from tasks.json
                                                         // before starting a debug session
             "showDevDebugOutput": false // When set to true, displays output of GDB.
                                         // This is helpful when something is not working right
@@ -85,7 +85,7 @@
             "type": "cortex-debug",
             "request": "attach",
             "cwd": "${workspaceRoot}",
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.elf",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.elf",
             "servertype": "openocd",
             "searchDir": [
                 "${workspaceRoot}",
@@ -110,7 +110,7 @@
             "postRestartSessionCommands": [
             ],
             // svdFile is optional, it can be very large.
-            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_02.svd",
+            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_01.svd",
             "breakAfterReset": true,
             "showDevDebugOutput": false // When set to true, displays output of GDB.
                                         // This is helpful when something is not working right
@@ -120,7 +120,7 @@
             "type": "cortex-debug",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.hex",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.hex",
             "servertype": "openocd",
             "searchDir": [
                 "${workspaceRoot}",
@@ -148,7 +148,7 @@
             "type": "cortex-debug",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.hex",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.hex",
             "servertype": "openocd",
             "searchDir": [
                 "${workspaceRoot}",
@@ -160,7 +160,7 @@
             "overrideLaunchCommands": [
                 "set remotetimeout 15",
                 "monitor psoc6 sflash_restrictions 1",
-                "monitor program {./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.hex}",
+                "monitor program {./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.hex}",
                 "monitor reset_config srst_only",
                 "monitor reset run",
                 "monitor psoc6.dap dpreg 0x04 0x00",
@@ -177,16 +177,16 @@
             "type": "cortex-debug",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.elf",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.elf",
             "servertype": "jlink",
-            "device": "CY8C6xxA_CM4_sect256KB",
+            "device": "CY8C6xx7_CM4_sect256KB",
             "preLaunchCommands": [
                 // Program via the hex file to get complete coverage
-                "exec-file ./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.hex"
+                "exec-file ./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.hex"
             ],
             "demangle": true,
             // svdFile is optional, it can be very large.
-            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_02.svd",
+            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_01.svd",
             "runToMain": true,          // if true, program will halt at main. Not used for a restart
             "preLaunchTask": "Build: Build [Debug]", // Set this to run a task from tasks.json before
                                                      // starting a debug session
@@ -201,12 +201,12 @@
             "type": "cortex-debug",
             "request": "attach",
             "cwd": "${workspaceRoot}",
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.elf",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.elf",
             "servertype": "jlink",
-            "device": "CY8C6xxA_CM4_sect256KB",
+            "device": "CY8C6xx7_CM4_sect256KB",
             "demangle": true,
             // svdFile is optional, it can be very large.
-            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_02.svd",
+            "svdFile": "../mtb_shared/mtb-pdl-cat1/release-v2.4.1/devices/COMPONENT_CAT1A/svd/psoc6_01.svd",
             "showDevDebugOutput": false // When set to true, displays output of GDB.
                                         // This is helpful when something is not working right
         },
@@ -216,9 +216,9 @@
             "request": "launch",
             "cwd": "${workspaceRoot}",
             // executable not needed but need some valid file to get the session to start
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.hex",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.hex",
             "servertype": "jlink",
-            "device": "CY8C6xxA_CM0p_sect256KB_tm",
+            "device": "CY8C6xx7_CM0p_sect256KB_tm",
             "overrideLaunchCommands": [
                 "monitor reset 0",      // Reset both core and the peripherals
                 "monitor flash erase",
@@ -234,9 +234,9 @@
             "request": "launch",
             "cwd": "${workspaceRoot}",
             // Program via the hex file to get complete coverage, no need for symbols
-            "executable": "./build/CY8CPROTO-062-4343W/Debug/marvin_ml_solver.hex",
+            "executable": "./build/CY8CKIT-062-WIFI-BT/Debug/marvin_ml_solver.hex",
             "servertype": "jlink",
-            "device": "CY8C6xxA_CM0p_sect256KB_tm",
+            "device": "CY8C6xx7_CM0p_sect256KB_tm",
             "overrideLaunchCommands": [
                 "monitor reset 0",      // Reset both core and the peripherals
                 "-target-download",
