@@ -258,9 +258,9 @@ freq_high = sampling_rate / 2 # Nyquist rate
 
 # Configurable parameters
 FFT_size = 1024
-FFT_step_size = 1024
-num_dct_outputs = 5
-num_mel_filters = 40
+FFT_step_size = 128
+num_dct_outputs = 12
+num_mel_filters = 30
 
 mfccf32 = cmsisdsp.arm_mfcc_instance_f32()
 window = sig.hamming(FFT_size, sym=False)

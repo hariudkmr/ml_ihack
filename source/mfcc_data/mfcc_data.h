@@ -16,10 +16,10 @@ extern "C"
 *****/
 
 
-#define DCT_OUTPUT_LEN                   (5u)
-#define MEL_FILTERS_LEN                  (40u)
+#define DCT_OUTPUT_LEN                   (12u)
+#define MEL_FILTERS_LEN                  (30u)
 
-#define NB_MFCC_DCT_COEFS_CONFIG1_F32    (200u)
+#define NB_MFCC_DCT_COEFS_CONFIG1_F32    (360u)
 
 extern const float32_t mfcc_dct_coefs_config1_f32[NB_MFCC_DCT_COEFS_CONFIG1_F32];
 #define MFCC_DCT_COEFS    mfcc_dct_coefs_config1_f32
@@ -51,7 +51,7 @@ extern const float32_t mfcc_window_coefs_config1_f32[NB_MFCC_WIN_COEFS_CONFIG1_F
 #define MEL_MAX_FREQUENCY_HZ             (8000u)
 #define SPECTROGRAM_BUFFER_TYPE          (BUFFER_TYPE_F32)
 
-#define NB_MFCC_NB_FILTER_CONFIG1_F32    (40u)
+#define NB_MFCC_NB_FILTER_CONFIG1_F32    (30u)
 
 extern const uint32_t mfcc_filter_pos_config1_f32[NB_MFCC_NB_FILTER_CONFIG1_F32];
 extern const uint32_t mfcc_filter_len_config1_f32[NB_MFCC_NB_FILTER_CONFIG1_F32];
@@ -63,7 +63,7 @@ extern const uint32_t mfcc_filter_len_config1_f32[NB_MFCC_NB_FILTER_CONFIG1_F32]
 
 
 
-#define NB_MFCC_FILTER_COEFS_CONFIG1_F32    (979u)
+#define NB_MFCC_FILTER_COEFS_CONFIG1_F32    (968u)
 extern const float32_t mfcc_filter_coefs_config1_f32[NB_MFCC_FILTER_COEFS_CONFIG1_F32];
 #define MFCC_FILTER_COEFS    mfcc_filter_coefs_config1_f32
 

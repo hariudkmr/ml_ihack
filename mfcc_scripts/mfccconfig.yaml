@@ -1,7 +1,7 @@
 dct:
   config1_f32:
-    melFilters: 40
-    dctOutputs: 5
+    melFilters: 30
+    dctOutputs: 12
     type: "f32"
 
 melfilter:
@@ -10,7 +10,7 @@ melfilter:
     fmin: 64
     fmax: 8000
     samplingRate : 16000
-    melFilters: 40
+    melFilters: 30
     type: "f32"
 
 window:
