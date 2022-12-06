@@ -52,7 +52,7 @@
 * Macros
 ********************************************************************************/
 /* Enable profiler that prints out time taken for various tasks and operations */
-#define PROFILER_ENABLE                             (1u)
+#define PROFILER_ENABLE                             (0u)
 
 #define PINGPONGBUFFER                               1
 #define RINGBUFFER                                   0

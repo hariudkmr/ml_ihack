@@ -167,31 +167,6 @@ void inference_task(spect_t *spectrogram_ptr)
     if (result_buffer[class_index] > INFERENCE_THRESHOLD_PROBABILITY)
     {
         printf("\n Predicted Class = %10s Confidence %.2f \r\n", classes[class_index], result_buffer[class_index]);
-
-        if (class_index == marvin_class_index)
-        {
-            //cyhal_gpio_write((cyhal_gpio_t) CYBSP_USER_LED, CYBSP_LED_STATE_ON);
-        }
-        else if (class_index == off_class_index)
-        {
-            //cyhal_gpio_write((cyhal_gpio_t) CYBSP_USER_LED, CYBSP_LED_STATE_OFF);
-        }
-        else if (class_index == on_class_index)
-        {
-            //cyhal_gpio_write((cyhal_gpio_t) CYBSP_USER_LED, CYBSP_LED_STATE_OFF);
-        }
-        else if (class_index == one_class_index)
-        {
-            //cyhal_gpio_write((cyhal_gpio_t) CYBSP_USER_LED, CYBSP_LED_STATE_OFF);
-        }
-        else if (class_index == three_class_index)
-        {
-            //cyhal_gpio_write((cyhal_gpio_t) CYBSP_USER_LED, CYBSP_LED_STATE_OFF);
-        }
-         else if (class_index == two_class_index)
-        {
-            //cyhal_gpio_write((cyhal_gpio_t) CYBSP_USER_LED, CYBSP_LED_STATE_OFF);
-        }
     }
     else 
     {
