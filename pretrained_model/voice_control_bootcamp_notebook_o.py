@@ -258,7 +258,7 @@ freq_high = sampling_rate / 2 # Nyquist rate
 
 # Configurable parameters
 FFT_size = 1024
-FFT_step_size = 128
+FFT_step_size = 512
 num_dct_outputs = 12
 num_mel_filters = 30
 

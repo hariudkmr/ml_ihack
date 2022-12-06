@@ -94,7 +94,7 @@
 #define PDM_GAIN_RIGHT                              (5u)
 
 /* Spectrogram parameters */
-#define FFT_STEP_SIZE                               (128u)
+#define FFT_STEP_SIZE                               (512u)
 #define FFT_OUTPUT_SIZE                             (DCT_OUTPUT_LEN)
 
 /* Note: There are a few spectrogram parameters are generated and defined as part of 
