@@ -54,10 +54,20 @@
 /* Enable profiler that prints out time taken for various tasks and operations */
 #define PROFILER_ENABLE                             (1u)
 
+#define PINGPONGBUFFER                               1
+#define RINGBUFFER                                   0
+
 /* Define how many samples in a frame */
-#define TBUFFER_SIZE                                 65536
+#if RINGBUFFER == 1
 #define SBUFFER_SIZE                                 16384
 #define N_FRAMES                                     4
+#define TBUFFER_SIZE                                 (SBUFFER_SIZE*N_FRAMES)
+#endif 
+
+#if PINGPONGBUFFER == 1
+#define BUFFER_SIZE                                 16384
+#endif 
+
 
 /* Desired sample rate. Typical values: 8/16/22.05/32/44.1/48kHz */
 #define SAMPLE_RATE_HZ                              16000u
@@ -94,7 +104,13 @@
  */
 
 /* Spectrogram parameters */
+#if PINGPONGBUFFER == 1
+#define SPECTROGRAM_NUM_SAMPLES                     (BUFFER_SIZE) /* Specify as multiple of 'BUFFER_SIZE' */
+#endif
+
+#if RINGBUFFER == 1
 #define SPECTROGRAM_NUM_SAMPLES                     (SBUFFER_SIZE) /* Specify as multiple of 'BUFFER_SIZE' */
+#endif
 
 /* Sizes for various buffers created in the application */
 #define NUM_FRAMES_IN_SPECTROGRAM                   (SPECTROGRAM_NUM_SAMPLES / FFT_STEP_SIZE)

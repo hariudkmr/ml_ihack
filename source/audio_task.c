@@ -94,10 +94,18 @@
 * Global Variables
 ********************************************************************************/
 /* PCM buffers and pointers */
-//int16_t  rx_buffer0[BUFFER_SIZE] = {0};
-//int16_t  rx_buffer1[BUFFER_SIZE] = {0};
+#if PINGPONGBUFFER == 1
+static int16_t  rx_buffer0[BUFFER_SIZE] = {0};
+static int16_t  rx_buffer1[BUFFER_SIZE] = {0};
+static pcm_t    final_pcm_buffer[BUFFER_SIZE] = {0};
+static int16_t* active_rx_buffer;
+static int16_t* full_rx_buffer;
+#endif 
+
+#if RINGBUFFER == 1
 int16_t  ring_buffer[TBUFFER_SIZE] = {0};
 pcm_t    final_pcm_buffer[SBUFFER_SIZE] = {0};
+#endif
 
 /* Interrupt flags */
 volatile bool pdm_pcm_flag = false;
@@ -191,14 +199,23 @@ void audio_task_init(void)
     cyhal_pdm_pcm_set_async_mode(&pdm_pcm, CYHAL_ASYNC_SW,CYHAL_DMA_PRIORITY_DEFAULT);
 
     /* Setup the PCM buffer pointers and start the PDM hardware block */
-    //active_rx_buffer = rx_buffer0;
-    //full_rx_buffer   = rx_buffer1;
+    #if PINGPONGBUFFER == 1
+    active_rx_buffer = rx_buffer0;
+    full_rx_buffer   = rx_buffer1;
+    #endif
     cyhal_pdm_pcm_start(&pdm_pcm);
 
     /* Start async read to read frame after 1 sec delay for stabilization */
     cyhal_system_delay_ms(1000u);
     PCM_PROFILER_START();
+
+    #if PINGPONGBUFFER == 1
+    cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
+    #endif 
+
+    #if RINGBUFFER == 1
     cyhal_pdm_pcm_read_async(&pdm_pcm, ring_buffer, TBUFFER_SIZE);
+    #endif
 }
 
 /*******************************************************************************
@@ -234,11 +251,12 @@ void audio_task_loop(void)
             //cyhal_pdm_pcm_read_async(&pdm_pcm, ring_buffer, BUFFER_SIZE);
             PCM_PROFILER_START();
             /* Swap the active and the next rx buffers */
+        
+        #if RINGBUFFER == 1   
             volatile uint32_t active_buffer;    
-            //active_rx_buffer = full_rx_buffer;
-            //full_rx_buffer   = temp;
             active_buffer = (uint32_t)ring_buffer;
              for(int i=0; i <N_FRAMES; i++)
+        #endif     
             {
                 TOTAL_PREPROCESSING_PROFILER_START();
 
@@ -248,11 +266,16 @@ void audio_task_loop(void)
                 OPERATION_PROFILER_START();
            
                 /* IIR filter to remove DC component from the PCM samples */
-                active_buffer += SBUFFER_SIZE*i;
-               
-                pcm_dc_filtering((int16_t*)active_buffer, final_pcm_buffer, SBUFFER_SIZE);
+                #if PINGPONGBUFFER == 1
+                pcm_dc_filtering(full_rx_buffer, final_pcm_buffer, BUFFER_SIZE);
+                #endif 
 
-                OPERATION_PROFILER_STOP("  DC Filtering");
+                #if RINGBUFFER == 1
+                active_buffer += SBUFFER_SIZE*i;
+                pcm_dc_filtering((int16_t*)active_buffer, final_pcm_buffer, SBUFFER_SIZE);
+                #endif 
+
+                OPERATION_PROFILER_STOP("DC Filtering");
 
 
                 /**********************************************************************
@@ -260,7 +283,7 @@ void audio_task_loop(void)
                 **********************************************************************/
                 OPERATION_PROFILER_START();
 
-                //get_buffer_mfcc_spectrogram(final_pcm_buffer, (sizeof(final_pcm_buffer) / sizeof(final_pcm_buffer[0])));
+                get_buffer_mfcc_spectrogram(final_pcm_buffer, (sizeof(final_pcm_buffer) / sizeof(final_pcm_buffer[0])));
 
                 OPERATION_PROFILER_STOP("    MFCC Spectrogram");
                 final_spectrogram_ptr = (spect_t *) spectrogram_final_buffer;
@@ -332,11 +355,18 @@ static void pdm_pcm_isr_handler(void *arg, cyhal_pdm_pcm_event_t event)
     {
         //PCM_PROFILER_START();
         pdm_pcm_flag = true;
-        //uint32_t* temp = active_rx_buffer;
-        //active_rx_buffer = full_rx_buffer;
-        //full_rx_buffer   = temp;
+        
+        #if PINGPONGBUFFER == 1
+        uint16_t* temp = active_rx_buffer;
+        active_rx_buffer = full_rx_buffer;
+        full_rx_buffer   = temp;
+        cyhal_pdm_pcm_read_async(&pdm_pcm, active_rx_buffer, BUFFER_SIZE);
+        #endif 
         // Start reading into the next buffer while the just-filled one is being processed
+        
+        #if RINGBUFFER == 1
         cyhal_pdm_pcm_read_async(&pdm_pcm, ring_buffer, TBUFFER_SIZE);
+        #endif
         
     }
 }
